@@ -1,3 +1,4 @@
-SamAccountName;GrupoDestino
-joseane.lelis;grp_pod02_admin_tacacs
-carlos.silva;grp_pod02_user_tacacs
+SamAccountName;GrupoDestino;Acao
+joseane.lelis;grp_pod02_admin_tacacs;Adicionar
+carlos.silva;grp_pod02_user_tacacs;Adicionar
+carlos.silva;grp_pod02_admin_tacacs;Remover
