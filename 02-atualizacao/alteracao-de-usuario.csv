@@ -1,3 +1,3 @@
-SamAccountName;NovoSobrenome;NovoDepartamento
-joseane.lelis;Sousa de Lelis;TI
-carlos.silva;Santos Silva;Infraestrutura
+SamAccountName;NovoSobrenome;NovoDepartamento;NovoCargo;NovoEmail;NovoTelefone
+joseane.lelis;Sousa de Lelis;TI;Analista de Sistemas;joseane.lelis@lab.local;
+carlos.silva;;Infraestrutura;;;+55 11 4002-8922
