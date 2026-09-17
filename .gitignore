@@ -1,0 +1,11 @@
+# Relatórios gerados pelos scripts.
+# ATENÇÃO: o log de criação contém as senhas iniciais em texto plano.
+log-*.csv
+
+# CSVs de trabalho com dados reais.
+*-real.csv
+*-prod.csv
+
+# Windows
+Thumbs.db
+desktop.ini
