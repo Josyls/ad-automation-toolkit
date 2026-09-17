@@ -1,0 +1,57 @@
+# 1. Pede credenciais de Administrador de forma segura para a sessão
+Write-Host "Insira suas credenciais de Administrador do AD:" -ForegroundColor Cyan
+$Credencial = Get-Credential
+
+# 2. Importa o arquivo CSV (compatível com o padrão de ponto e vírgula do Excel)
+$CaminhoCsv = "$PSScriptRoot\criacao-de-usuario.csv"
+$ListaUsuarios = Import-Csv -Path $CaminhoCsv -Delimiter ";"
+
+Write-Host "Processando $($ListaUsuarios.Count) usuários..." -ForegroundColor Yellow
+
+foreach ($Linha in $ListaUsuarios) {
+    $Nome = $Linha.Nome.Trim()
+    $Sobrenome = $Linha.Sobrenome.Trim()
+    $GrupoDestino = $Linha.Grupo.Trim()
+
+    # Gera o login limpo (ex: joseane.sousa)
+    $SamUser = "$($Nome.ToLower()).$($Sobrenome.Split(' ')[-1].toLowerCase())"
+    $Upn = "$SamUser@lab.local"
+    $NomeExibicao = "$Nome $Sobrenome"
+
+    # Verifica se o usuário já existe no AD pelo login
+    $UsuarioExiste = Get-ADUser -Filter "SamAccountName -eq '$SamUser'" -Credential $Credencial -ErrorAction SilentlyContinue
+
+    if ($UsuarioExiste) {
+        Write-Host "Aviso: O usuário '$SamUser' já existe no AD. Ignorando..." -ForegroundColor Yellow
+        continue
+    }
+
+    # Cria o usuário caso não exista
+    $SenhaSegura = ConvertTo-SecureString "Fortinet1!" -AsPlainText -Force
+
+    New-ADUser -Name $NomeExibicao `
+               -GivenName $Nome `
+               -Surname $Sobrenome `
+               -SamAccountName $SamUser `
+               -UserPrincipalName $Upn `
+               -Path "CN=Users,DC=lab,DC=local" `
+               -AccountPassword $SenhaSegura `
+               -Enabled $true `
+               -PasswordNeverExpires $true `
+               -Credential $Credencial
+
+    Write-Host "Sucesso: Usuário $SamUser criado!" -ForegroundColor Green
+
+    # Atribui o usuário ao grupo especificado na planilha
+    $ObjUsuario = Get-ADUser -Filter "SamAccountName -eq '$SamUser'" -Credential $Credencial -ErrorAction SilentlyContinue
+    $ObjGrupo = Get-ADGroup -Filter "Name -eq '$GrupoDestino'" -Credential $Credencial -ErrorAction SilentlyContinue
+
+    if ($ObjUsuario -and $ObjGrupo) {
+        Add-ADGroupMember -Identity $ObjGrupo -Members $ObjUsuario -Credential $Credencial -ErrorAction SilentlyContinue
+        Write-Host "  -> Adicionado ao grupo [$GrupoDestino]" -ForegroundColor DarkGreen
+    } else {
+        Write-Host "  -> Erro: Grupo [$GrupoDestino] não foi encontrado no AD." -ForegroundColor Red
+    }
+}
+
+Write-Host "Processo concluído!" -ForegroundColor Cyan
