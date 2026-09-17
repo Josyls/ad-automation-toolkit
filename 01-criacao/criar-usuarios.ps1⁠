@@ -1,4 +1,4 @@
- # 1. Pede credenciais de Administrador de forma segura para a sessão
+# 1. Pede credenciais de Administrador de forma segura para a sessão
 Write-Host "Insira suas credenciais de Administrador do AD:" -ForegroundColor Cyan
 $Credencial = Get-Credential
 
